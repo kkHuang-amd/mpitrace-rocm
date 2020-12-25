@@ -16,6 +16,9 @@
 #include <cuda_profiler_api.h>
 #include <nvToolsExt.h>
 #endif
+#ifdef USE_ROCTX
+#include <roctx.h>
+#endif
 
 /*----------------------------------------------------------*/
 /*    dimensions of arrays                                  */

@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 #parse command arguments
-config_args=$(/usr/bin/getopt -n $0 -l "help,with-mpicc:,with-cuda:,with-fortran" -o "hw:c:f:" -- "$@")
+config_args=$(/usr/bin/getopt -n $0 -l "help,with-mpicc:,with-rocm:,with-fortran" -o "hw:c:f:" -- "$@")
 
 if [ $? -ne 0 ]; then
   echo check arguments :  ./configure --help
@@ -10,7 +10,7 @@ fi
 
 eval set -- "$config_args"
 
-cuda_flag=0
+rocm_flag=0
 mpicc_flag=1
 fortran_flag=1
 
@@ -21,7 +21,7 @@ do
      echo "configure options :"
      echo "--help  (prints this help message)"
      echo "--with-mpicc=your_mpi_compiler (needed only if your MPI compiler is not mpicc or Cray cc)"
-     echo "--with-cuda=/path/to/cuda  (required and must have sub-directories : lib64,include)"
+     echo "--with-rocm=/path/to/rocm  (required and must have sub-directories : lib64,include)"
      echo "--with-fortran=[yes|no]  (default is \"yes\", specify \"no\" to wrap only the C interfaces to MPI)"
      exit;;
   
@@ -34,14 +34,14 @@ do
      fi
      shift 2;;
 
-    -c|--with-cuda)
-     cuda_flag=1
-     cuda_path="$2"
-     if [ ${cuda_path:0:2} == -- ]; then
-       echo error : specify --with-cuda=/path/to/cuda ... exiting
+    -c|--with-rocm)
+     rocm_flag=1
+     rocm_path="$2"
+     if [ ${rocm_path:0:2} == -- ]; then
+       echo error : specify --with-rocm=/path/to/rocm ... exiting
        exit
      fi
-     echo using cuda_path=$cuda_path
+     echo using rocm_path=$rocm_path
      shift 2;;
 
     --)
@@ -121,55 +121,63 @@ if [ $fortran_flag == "0" ]; then
   sed -i "s/ FNAME = / FNAME = -DSKIP_FORTRAN/g" makefile
 fi
 
-if [ $cuda_flag == 1 ]; then
-# check for cuda components
-  if [[ ! -z $cuda_path ]]; then
-    echo -n testing for libcudart.so...
-    if [ -f $cuda_path/lib64/libcudart.so ]; then
+if [ $rocm_flag == 1 ]; then
+# check for rocm components
+  if [[ ! -z $rocm_path ]]; then
+    echo -n testing for libhsa-runtime64.so...
+    if [ -f $rocm_path/lib/libhsa-runtime64.so ]; then
       echo found
     else
-      echo libcudart.so not found ... check your cuda path ... exiting
+      echo libhsa-runtime64.so not found ... check your rocm path ... exiting
       exit
     fi
 
-    echo -n testing for libnvToolsExt.so...
-    if [ -f $cuda_path/lib64/libnvToolsExt.so ]; then
+    echo -n testing for libroctx64.so...
+    if [ -f $rocm_path/lib/libroctx64.so ]; then
       echo found
     else
-      echo libnvToolsExt.so not found ... check your cuda path ... exiting
+      echo libroctx64.so not found ... check your rocm path ... exiting
       exit
     fi
 
-    echo -n testing for cuda_profiler_api.h...
-    if [ -f $cuda_path/include/cuda_profiler_api.h ]; then
+    echo -n testing for libroctracer64.so...
+    if [ -f $rocm_path/lib/libroctracer64.so ]; then
       echo found
     else
-      echo cuda_profiler_api.h not found ... check your cuda path ... exiting
+      echo libroctracer64.so not found ... check your rocm path ... exiting
       exit
     fi
 
-    echo -n testing for nvToolsExt.h...
-    if [ -f $cuda_path/include/nvToolsExt.h ]; then
+    echo -n testing for roctracer_ext.h...
+    if [ -f $rocm_path/include/roctracer/roctracer_ext.h ]; then
       echo found
     else
-      echo nvToolsExt.h not found ... check your cuda path ... exiting
+      echo roctracer_ext.h not found ... check your rocm path ... exiting
       exit
     fi
 
-    x_cuda_path="$(echo $cuda_path | sed 's/\//\\\//g')"
+    echo -n testing for roctx.h...
+    if [ -f $rocm_path/include/roctracer/roctx.h ]; then
+      echo found
+    else
+      echo roctx.h not found ... check your rocm path ... exiting
+      exit
+    fi
 
-    sed -i "s/CUDA_INSTALL_PATH/$x_cuda_path/g" makefile
+    x_rocm_path="$(echo $rocm_path | sed 's/\//\\\//g')"
+
+    sed -i "s/ROCM_INSTALL_PATH/$x_rocm_path/g" makefile
 
   else
 
-    echo "error  : the configure option --with-cuda  is required for cuda support"
-    echo "example : ./configure --with-cuda=/path/to/cuda"
+    echo "error  : the configure option --with-rocm  is required for rocm support"
+    echo "example : ./configure --with-rocm=/path/to/rocm"
     exit
 
   fi
 
   echo ""
-  echo "Edit makefile and ensure that the cuda path is set correctly"
+  echo "Edit makefile and ensure that the rocm path is set correctly"
   echo "To build the libmpitrace.so library, type : make libmpitrace.so"
   echo ""
 fi
