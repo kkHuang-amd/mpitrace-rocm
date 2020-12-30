@@ -148,7 +148,14 @@ int MPI_Send(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SEND_ID]);
+
+   char message[256];
+   PMPI_Type_size(type, &bytes);
+   bytes = count * bytes;
+   if (dest == MPI_PROC_NULL) bytes = 0;
+   sprintf(message, "%s:dest=%d:bytes=%d\0", label[SEND_ID], dest, bytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
 
    WTIME(TV1);
    rc = PMPI_Send(sbuf, count, type, dest, tag, comm);
@@ -244,7 +251,14 @@ int MPI_Isend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ISEND_ID]);
+
+   char message[256];
+   PMPI_Type_size(type, &bytes);
+   bytes = count * bytes;
+   if (dest == MPI_PROC_NULL) bytes = 0;
+   sprintf(message, "%s:dest=%d:bytes=%d\0", label[ISEND_ID], dest, bytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
 
    WTIME(TV1);
    rc = PMPI_Isend(sbuf, count, type, dest, tag, comm, req);
@@ -460,7 +474,14 @@ int MPI_Recv(void * rbuf, int count, MPI_Datatype type, int src,
 {
    int rc, bytes, source, count_received, flag;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RECV_ID]);
+
+   char message[256];
+   PMPI_Type_size(type, &bytes);
+   bytes = count * bytes;
+   if (src == MPI_PROC_NULL) bytes = 0;
+   sprintf(message, "%s:src=%d:bytes=%d\0", label[RECV_ID], src, bytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
    MPI_Status local_status;
 
    if (barrier_flag[RECV_ID])
@@ -508,7 +529,14 @@ int MPI_Irecv(void * rbuf, int count, MPI_Datatype type, int src,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IRECV_ID]);
+
+   char message[256];
+   PMPI_Type_size(type, &bytes);
+   bytes = count * bytes;
+   if (src == MPI_PROC_NULL) bytes = 0;
+   sprintf(message, "%s:src=%d:bytes=%d\0", label[IRECV_ID], src, bytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
 
    WTIME(TV1);
    rc = PMPI_Irecv(rbuf, count, type, src, tag, comm, req);
@@ -533,7 +561,17 @@ int MPI_Sendrecv(sbuf_t sbuf, int scount, MPI_Datatype stype, int dest, int stag
 {
    int rc, sbytes, rbytes, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SENDRECV_ID]);
+
+   char message[256];
+   PMPI_Type_size(stype, &sbytes);
+   sbytes = scount * sbytes;
+   PMPI_Type_size(rtype, &rbytes);
+   rbytes = rcount * rbytes;
+   if (dest == MPI_PROC_NULL) sbytes = 0;
+   if (src == MPI_PROC_NULL) rbytes = 0;
+   sprintf(message, "%s:dest=%d:bytes=%d:src=%d:bytes=%d\0", label[SENDRECV_ID], dest, sbytes, src, rbytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
 
    WTIME(TV1);
    rc = PMPI_Sendrecv(sbuf, scount, stype, dest, stag,
@@ -1004,7 +1042,12 @@ int MPI_Allreduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ALLREDUCE_ID]);
+   char message[256];
+   PMPI_Type_size(type, &bytes);
+   bytes = count * bytes;
+   sprintf(message, "%s:bytes=%d\0", label[ALLREDUCE_ID], bytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
 
    if (barrier_flag[ALLREDUCE_ID]) 
    {
@@ -1179,7 +1222,13 @@ int MPI_Gather(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[GATHER_ID]);
+
+   char message[256];
+   PMPI_Type_size(rtype, &bytes);
+   bytes = scount * bytes;
+   sprintf(message, "%s:root=%d:bytes=%d\0", label[GATHER_ID], root, bytes);
+
+   roctx_range_id_t range = roctxRangeStartA(message);
 
    if (barrier_flag[GATHER_ID]) 
    {
