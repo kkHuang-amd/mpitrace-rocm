@@ -14,6 +14,7 @@
 #include "mpitrace_common.c"
 
 #include <roctx.h>
+#include <unistd.h>
 
 /*----------------------------------------------------------*/
 /*    wrapper for C: MPI_Init                               */
@@ -110,13 +111,13 @@ int MPI_Comm_rank(MPI_Comm comm, int * id)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[COMM_RANK_ID]);
+   roctxRangePush(label[COMM_RANK_ID]);
   
    WTIME(TV1);
    rc = PMPI_Comm_rank(comm, id);
    WTIME(TV2);
   
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(COMM_RANK_ID, TV1, TV2, -1, -1, -1, comm);
    return rc;
 }
@@ -128,13 +129,13 @@ int MPI_Comm_size(MPI_Comm comm, int * ptasks)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[COMM_SIZE_ID]);
+   roctxRangePush(label[COMM_SIZE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Comm_size(comm, ptasks);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(COMM_SIZE_ID, TV1, TV2, -1, -1, -1, comm);
    return rc;
 }
@@ -155,7 +156,7 @@ int MPI_Send(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
    if (dest == MPI_PROC_NULL) bytes = 0;
    sprintf(message, "%s:dest=%d:bytes=%d\0", label[SEND_ID], dest, bytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
 
    WTIME(TV1);
    rc = PMPI_Send(sbuf, count, type, dest, tag, comm);
@@ -166,7 +167,7 @@ int MPI_Send(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -179,7 +180,7 @@ int MPI_Ssend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SSEND_ID]);
+   roctxRangePush(label[SSEND_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ssend(sbuf, count, type, dest, tag, comm);
@@ -190,7 +191,7 @@ int MPI_Ssend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SSEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -203,7 +204,7 @@ int MPI_Rsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RSEND_ID]);
+   roctxRangePush(label[RSEND_ID]);
 
    WTIME(TV1);
    rc = PMPI_Rsend(sbuf, count, type, dest, tag, comm);
@@ -214,7 +215,7 @@ int MPI_Rsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RSEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -227,7 +228,7 @@ int MPI_Bsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[BSEND_ID]);
+   roctxRangePush(label[BSEND_ID]);
 
    WTIME(TV1);
    rc = PMPI_Bsend(sbuf, count, type, dest, tag, comm);
@@ -238,7 +239,7 @@ int MPI_Bsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(BSEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -258,7 +259,7 @@ int MPI_Isend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
    if (dest == MPI_PROC_NULL) bytes = 0;
    sprintf(message, "%s:dest=%d:bytes=%d\0", label[ISEND_ID], dest, bytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
 
    WTIME(TV1);
    rc = PMPI_Isend(sbuf, count, type, dest, tag, comm, req);
@@ -269,7 +270,7 @@ int MPI_Isend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ISEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -282,7 +283,7 @@ int MPI_Issend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ISSEND_ID]);
+   roctxRangePush(label[ISSEND_ID]);
 
    WTIME(TV1);
    rc = PMPI_Issend(sbuf, count, type, dest, tag, comm, req);
@@ -293,7 +294,7 @@ int MPI_Issend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ISSEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -306,7 +307,7 @@ int MPI_Irsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IRSEND_ID]);
+   roctxRangePush(label[IRSEND_ID]);
 
    WTIME(TV1);
    rc = PMPI_Irsend(sbuf, count, type, dest, tag, comm, req);
@@ -317,7 +318,7 @@ int MPI_Irsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IRSEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -330,7 +331,7 @@ int MPI_Ibsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IBSEND_ID]);
+   roctxRangePush(label[IBSEND_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ibsend(sbuf, count, type, dest, tag, comm, req);
@@ -341,7 +342,7 @@ int MPI_Ibsend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IBSEND_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -354,7 +355,7 @@ int MPI_Send_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SEND_INIT_ID]);
+   roctxRangePush(label[SEND_INIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Send_init(sbuf, count, type, dest, tag, comm, req);
@@ -365,7 +366,7 @@ int MPI_Send_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SEND_INIT_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -378,7 +379,7 @@ int MPI_Ssend_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SSEND_INIT_ID]);
+   roctxRangePush(label[SSEND_INIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ssend_init(sbuf, count, type, dest, tag, comm, req);
@@ -389,7 +390,7 @@ int MPI_Ssend_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SSEND_INIT_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -402,7 +403,7 @@ int MPI_Rsend_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RSEND_INIT_ID]);
+   roctxRangePush(label[RSEND_INIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Rsend_init(sbuf, count, type, dest, tag, comm, req);
@@ -413,7 +414,7 @@ int MPI_Rsend_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RSEND_INIT_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -426,7 +427,7 @@ int MPI_Bsend_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[BSEND_INIT_ID]);
+   roctxRangePush(label[BSEND_INIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Bsend_init(sbuf, count, type, dest, tag, comm, req);
@@ -437,7 +438,7 @@ int MPI_Bsend_init(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
 
    if (dest == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(BSEND_INIT_ID, TV1, TV2, -1, dest, bytes, comm);
    return rc;
 }
@@ -450,7 +451,7 @@ int MPI_Recv_init(void * sbuf, int count, MPI_Datatype type, int src,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RECV_INIT_ID]);
+   roctxRangePush(label[RECV_INIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Recv_init(sbuf, count, type, src, tag, comm, req);
@@ -461,7 +462,7 @@ int MPI_Recv_init(void * sbuf, int count, MPI_Datatype type, int src,
 
    if (src == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RECV_INIT_ID, TV1, TV2, src, -1, bytes, comm);
    return rc;
 }
@@ -481,7 +482,7 @@ int MPI_Recv(void * rbuf, int count, MPI_Datatype type, int src,
    if (src == MPI_PROC_NULL) bytes = 0;
    sprintf(message, "%s:src=%d:bytes=%d\0", label[RECV_ID], src, bytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
    MPI_Status local_status;
 
    if (barrier_flag[RECV_ID])
@@ -516,7 +517,7 @@ int MPI_Recv(void * rbuf, int count, MPI_Datatype type, int src,
 
    if (src == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RECV_ID, TV1, TV2, source, -1, bytes, comm);
    return rc;
 }
@@ -536,7 +537,7 @@ int MPI_Irecv(void * rbuf, int count, MPI_Datatype type, int src,
    if (src == MPI_PROC_NULL) bytes = 0;
    sprintf(message, "%s:src=%d:bytes=%d\0", label[IRECV_ID], src, bytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
 
    WTIME(TV1);
    rc = PMPI_Irecv(rbuf, count, type, src, tag, comm, req);
@@ -547,7 +548,7 @@ int MPI_Irecv(void * rbuf, int count, MPI_Datatype type, int src,
 
    if (src == MPI_PROC_NULL) bytes = 0;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IRECV_ID, TV1, TV2, src, -1, bytes, comm);
    return rc;
 }
@@ -571,7 +572,7 @@ int MPI_Sendrecv(sbuf_t sbuf, int scount, MPI_Datatype stype, int dest, int stag
    if (src == MPI_PROC_NULL) rbytes = 0;
    sprintf(message, "%s:dest=%d:bytes=%d:src=%d:bytes=%d\0", label[SENDRECV_ID], dest, sbytes, src, rbytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
 
    WTIME(TV1);
    rc = PMPI_Sendrecv(sbuf, scount, stype, dest, stag,
@@ -589,7 +590,7 @@ int MPI_Sendrecv(sbuf_t sbuf, int scount, MPI_Datatype stype, int dest, int stag
    if (dest != MPI_PROC_NULL) bytes += sbytes;
    if (src  != MPI_PROC_NULL) bytes += rbytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SENDRECV_ID, TV1, TV2, src, dest, bytes, comm);
    return rc;
 }
@@ -602,7 +603,7 @@ int MPI_Sendrecv_replace(void * buf, int count, MPI_Datatype type, int dest, int
 {
    int rc, bytes, sbytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SENDRECV_REPLACE_ID]);
+   roctxRangePush(label[SENDRECV_REPLACE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Sendrecv_replace(buf, count, type, dest, stag,
@@ -616,7 +617,7 @@ int MPI_Sendrecv_replace(void * buf, int count, MPI_Datatype type, int dest, int
    if (dest != MPI_PROC_NULL) bytes += sbytes;
    if (src  != MPI_PROC_NULL) bytes += sbytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SENDRECV_REPLACE_ID, TV1, TV2, src, dest, bytes, comm);
    return rc;
 }
@@ -628,13 +629,13 @@ int MPI_Buffer_attach(void * buffer, int size)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[BUFFER_ATTACH_ID]);
+   roctxRangePush(label[BUFFER_ATTACH_ID]);
 
    WTIME(TV1);
    rc = PMPI_Buffer_attach(buffer, size);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(BUFFER_ATTACH_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -646,13 +647,13 @@ int MPI_Buffer_detach(void * buffer, int * size)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[BUFFER_DETACH_ID]);
+   roctxRangePush(label[BUFFER_DETACH_ID]);
 
    WTIME(TV1);
    rc = PMPI_Buffer_detach(buffer, size);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(BUFFER_DETACH_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -664,13 +665,13 @@ int MPI_Probe(int src, int tag, MPI_Comm comm, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[PROBE_ID]);
+   roctxRangePush(label[PROBE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Probe(src, tag, comm, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(PROBE_ID, TV1, TV2, src, -1, -1, comm);
    return rc;
 }
@@ -682,13 +683,13 @@ int MPI_Iprobe(int src, int tag, MPI_Comm comm, int * flag, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IPROBE_ID]);
+   roctxRangePush(label[IPROBE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iprobe(src, tag, comm, flag, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IPROBE_ID, TV1, TV2, src, -1, -1, comm);
    return rc;
 }
@@ -700,13 +701,13 @@ int MPI_Test(MPI_Request * request, int * flag, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[TEST_ID]);
+   roctxRangePush(label[TEST_ID]);
 
    WTIME(TV1);
    rc = PMPI_Test(request, flag, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(TEST_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -719,13 +720,13 @@ int MPI_Testany(int num, MPI_Request * req, int * indx, int * flag,
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[TESTANY_ID]);
+   roctxRangePush(label[TESTANY_ID]);
 
    WTIME(TV1);
    rc = PMPI_Testany(num, req, indx, flag, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(TESTANY_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -737,13 +738,13 @@ int MPI_Testall(int num, MPI_Request * req, int * flag, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[TESTALL_ID]);
+   roctxRangePush(label[TESTALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Testall(num, req, flag, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(TESTALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -756,13 +757,13 @@ int MPI_Testsome(int inum, MPI_Request * req, int * onum, int * ind,
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[TESTSOME_ID]);
+   roctxRangePush(label[TESTSOME_ID]);
 
    WTIME(TV1);
    rc = PMPI_Testsome(inum, req, onum, ind, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(TESTSOME_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -774,7 +775,7 @@ int MPI_Wait(MPI_Request * request, MPI_Status * status)
 {
    int rc, src;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WAIT_ID]);
+   roctxRangePush(label[WAIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Wait(request, status);
@@ -786,7 +787,7 @@ int MPI_Wait(MPI_Request * request, MPI_Status * status)
    else
        src = -1;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WAIT_ID, TV1, TV2, src, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -798,7 +799,7 @@ int MPI_Waitany(int num, MPI_Request * req, int * indx, MPI_Status * status)
 {
    int rc, src;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WAITANY_ID]);
+   roctxRangePush(label[WAITANY_ID]);
 
    WTIME(TV1);
    rc = PMPI_Waitany(num, req, indx, status);
@@ -810,7 +811,7 @@ int MPI_Waitany(int num, MPI_Request * req, int * indx, MPI_Status * status)
    else
        src = -1;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WAITANY_ID, TV1, TV2, src, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -822,13 +823,13 @@ int MPI_Waitall(int num, MPI_Request * req, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WAITALL_ID]);
+   roctxRangePush(label[WAITALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Waitall(num, req, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WAITALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -841,13 +842,13 @@ int MPI_Waitsome(int inum, MPI_Request * req, int * onum, int * ind,
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WAITSOME_ID]);
+   roctxRangePush(label[WAITSOME_ID]);
 
    WTIME(TV1);
    rc = PMPI_Waitsome(inum, req, onum, ind, status);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WAITSOME_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -859,13 +860,13 @@ int MPI_Start(MPI_Request * req)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[START_ID]);
+   roctxRangePush(label[START_ID]);
 
    WTIME(TV1);
    rc = PMPI_Start(req);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(START_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -877,13 +878,13 @@ int MPI_Startall(int num, MPI_Request * req)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[STARTALL_ID]);
+   roctxRangePush(label[STARTALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Startall(num, req);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(STARTALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -896,7 +897,7 @@ int MPI_Bcast(void * data, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[BCAST_ID]);
+   roctxRangePush(label[BCAST_ID]);
 
    if (barrier_flag[BCAST_ID]) 
    {
@@ -913,7 +914,7 @@ int MPI_Bcast(void * data, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(BCAST_ID, TV1, TV2, root, -1, bytes, comm); 
    return rc;
 }
@@ -927,7 +928,7 @@ int MPI_Ibcast(void * data, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IBCAST_ID]);
+   roctxRangePush(label[IBCAST_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ibcast(data, count, type, root, comm, req);
@@ -936,7 +937,7 @@ int MPI_Ibcast(void * data, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IBCAST_ID, TV1, TV2, root, -1, bytes, comm); 
    return rc;
 }
@@ -949,13 +950,13 @@ int MPI_Barrier(MPI_Comm comm)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[BARRIER_ID]);
+   roctxRangePush(label[BARRIER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Barrier(comm);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(BARRIER_ID, TV1, TV2, -1, -1, -1, comm); 
    return rc;
 }
@@ -968,13 +969,13 @@ int MPI_Ibarrier(MPI_Comm comm, MPI_Request * req)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IBARRIER_ID]);
+   roctxRangePush(label[IBARRIER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ibarrier(comm, req);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IBARRIER_ID, TV1, TV2, -1, -1, -1, comm); 
    return rc;
 }
@@ -988,7 +989,7 @@ int MPI_Reduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[REDUCE_ID]);
+   roctxRangePush(label[REDUCE_ID]);
 
    if (barrier_flag[REDUCE_ID]) 
    {
@@ -1005,7 +1006,7 @@ int MPI_Reduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(REDUCE_ID, TV1, TV2, -1, root, bytes, comm); 
    return rc;
 }
@@ -1019,7 +1020,7 @@ int MPI_Ireduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IREDUCE_ID]);
+   roctxRangePush(label[IREDUCE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ireduce(sbuf, rbuf, count, type, op, root, comm, req);
@@ -1028,7 +1029,7 @@ int MPI_Ireduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IREDUCE_ID, TV1, TV2, -1, root, bytes, comm); 
    return rc;
 }
@@ -1047,7 +1048,7 @@ int MPI_Allreduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    bytes = count * bytes;
    sprintf(message, "%s:bytes=%d\0", label[ALLREDUCE_ID], bytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
 
    if (barrier_flag[ALLREDUCE_ID]) 
    {
@@ -1064,7 +1065,7 @@ int MPI_Allreduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ALLREDUCE_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1078,7 +1079,7 @@ int MPI_Iallreduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IALLREDUCE_ID]);
+   roctxRangePush(label[IALLREDUCE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iallreduce(sbuf, rbuf, count, type, op, comm, req);
@@ -1087,7 +1088,7 @@ int MPI_Iallreduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IALLREDUCE_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1101,7 +1102,7 @@ int MPI_Reduce_scatter(sbuf_t sbuf, void * rbuf, iarray_t counts, MPI_Datatype t
 {
    int rc, i, bytes, num, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[REDUCE_SCATTER_ID]);
+   roctxRangePush(label[REDUCE_SCATTER_ID]);
 
    if (barrier_flag[REDUCE_SCATTER_ID]) 
    {
@@ -1122,7 +1123,7 @@ int MPI_Reduce_scatter(sbuf_t sbuf, void * rbuf, iarray_t counts, MPI_Datatype t
    for (i=0; i<tasks; i++) num += counts[i];
    bytes = num * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(REDUCE_SCATTER_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1136,7 +1137,7 @@ int MPI_Ireduce_scatter(sbuf_t sbuf, void * rbuf, iarray_t counts, MPI_Datatype 
 {
    int rc, i, bytes, num, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IREDUCE_SCATTER_ID]);
+   roctxRangePush(label[IREDUCE_SCATTER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ireduce_scatter(sbuf, rbuf, counts, type, op, comm, req);
@@ -1149,7 +1150,7 @@ int MPI_Ireduce_scatter(sbuf_t sbuf, void * rbuf, iarray_t counts, MPI_Datatype 
    for (i=0; i<tasks; i++) num += counts[i];
    bytes = num * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IREDUCE_SCATTER_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1164,7 +1165,7 @@ int MPI_Reduce_scatter_block(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype t
 {
    int rc, i, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[REDUCE_SCATTER_BLOCK_ID]);
+   roctxRangePush(label[REDUCE_SCATTER_BLOCK_ID]);
 
    if (barrier_flag[REDUCE_SCATTER_BLOCK_ID]) 
    {
@@ -1182,7 +1183,7 @@ int MPI_Reduce_scatter_block(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype t
 
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(REDUCE_SCATTER_BLOCK_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1197,7 +1198,7 @@ int MPI_Ireduce_scatter_block(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype 
 {
    int rc, i, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IREDUCE_SCATTER_BLOCK_ID]);
+   roctxRangePush(label[IREDUCE_SCATTER_BLOCK_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ireduce_scatter_block(sbuf, rbuf, count, type, op, comm, req);
@@ -1207,7 +1208,7 @@ int MPI_Ireduce_scatter_block(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype 
 
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IREDUCE_SCATTER_BLOCK_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1228,7 +1229,7 @@ int MPI_Gather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    bytes = scount * bytes;
    sprintf(message, "%s:root=%d:bytes=%d\0", label[GATHER_ID], root, bytes);
 
-   roctx_range_id_t range = roctxRangeStartA(message);
+   roctxRangePush(message);
 
    if (barrier_flag[GATHER_ID]) 
    {
@@ -1245,7 +1246,7 @@ int MPI_Gather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(GATHER_ID, TV1, TV2, -1, root, bytes, comm); 
    return rc;
 }
@@ -1260,7 +1261,7 @@ int MPI_Igather(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IGATHER_ID]);
+   roctxRangePush(label[IGATHER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Igather(sbuf, scount, stype, rbuf, rcount, rtype, root, comm, req);
@@ -1269,7 +1270,7 @@ int MPI_Igather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IGATHER_ID, TV1, TV2, -1, root, bytes, comm); 
    return rc;
 }
@@ -1284,7 +1285,7 @@ int MPI_Gatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[GATHERV_ID]);
+   roctxRangePush(label[GATHERV_ID]);
 
    if (barrier_flag[GATHERV_ID]) 
    {
@@ -1301,7 +1302,7 @@ int MPI_Gatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(GATHERV_ID, TV1, TV2, -1, root, bytes, comm); 
    return rc;
 }
@@ -1316,7 +1317,7 @@ int MPI_Igatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IGATHERV_ID]);
+   roctxRangePush(label[IGATHERV_ID]);
 
    WTIME(TV1);
    rc = PMPI_Igatherv(sbuf, scount, stype, rbuf, rcounts, rdisp, rtype, root, comm, req);
@@ -1325,7 +1326,7 @@ int MPI_Igatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IGATHERV_ID, TV1, TV2, -1, root, bytes, comm); 
    return rc;
 }
@@ -1339,7 +1340,7 @@ int MPI_Scan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SCAN_ID]);
+   roctxRangePush(label[SCAN_ID]);
 
    if (barrier_flag[SCAN_ID]) 
    {
@@ -1356,7 +1357,7 @@ int MPI_Scan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SCAN_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1370,7 +1371,7 @@ int MPI_Iscan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ISCAN_ID]);
+   roctxRangePush(label[ISCAN_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iscan(sbuf, rbuf, count, type, op, comm, req);
@@ -1379,7 +1380,7 @@ int MPI_Iscan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ISCAN_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1393,7 +1394,7 @@ int MPI_Exscan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[EXSCAN_ID]);
+   roctxRangePush(label[EXSCAN_ID]);
 
    if (barrier_flag[EXSCAN_ID]) 
    {
@@ -1410,7 +1411,7 @@ int MPI_Exscan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(EXSCAN_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1424,7 +1425,7 @@ int MPI_Iexscan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IEXSCAN_ID]);
+   roctxRangePush(label[IEXSCAN_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iexscan(sbuf, rbuf, count, type, op, comm, req);
@@ -1433,7 +1434,7 @@ int MPI_Iexscan(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IEXSCAN_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1448,7 +1449,7 @@ int MPI_Allgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ALLGATHER_ID]);
+   roctxRangePush(label[ALLGATHER_ID]);
 
    if (barrier_flag[ALLGATHER_ID]) 
    {
@@ -1465,7 +1466,7 @@ int MPI_Allgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ALLGATHER_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1480,7 +1481,7 @@ int MPI_Neighbor_allgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[NEIGHBOR_ALLGATHER_ID]);
+   roctxRangePush(label[NEIGHBOR_ALLGATHER_ID]);
 
    if (barrier_flag[NEIGHBOR_ALLGATHER_ID]) 
    {
@@ -1497,7 +1498,7 @@ int MPI_Neighbor_allgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(NEIGHBOR_ALLGATHER_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1511,7 +1512,7 @@ int MPI_Iallgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IALLGATHER_ID]);
+   roctxRangePush(label[IALLGATHER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iallgather(sbuf, scount, stype, rbuf, rcount, rtype, comm, req);
@@ -1520,7 +1521,7 @@ int MPI_Iallgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IALLGATHER_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1534,7 +1535,7 @@ int MPI_Ineighbor_allgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[INEIGHBOR_ALLGATHER_ID]);
+   roctxRangePush(label[INEIGHBOR_ALLGATHER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ineighbor_allgather(sbuf, scount, stype, rbuf, rcount, rtype, comm, req);
@@ -1543,7 +1544,7 @@ int MPI_Ineighbor_allgather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(INEIGHBOR_ALLGATHER_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1558,7 +1559,7 @@ int MPI_Allgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ALLGATHERV_ID]);
+   roctxRangePush(label[ALLGATHERV_ID]);
 
    if (barrier_flag[ALLGATHERV_ID]) 
    {
@@ -1576,7 +1577,7 @@ int MPI_Allgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcounts[id] * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ALLGATHERV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1591,7 +1592,7 @@ int MPI_Neighbor_allgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[NEIGHBOR_ALLGATHERV_ID]);
+   roctxRangePush(label[NEIGHBOR_ALLGATHERV_ID]);
 
    if (barrier_flag[NEIGHBOR_ALLGATHERV_ID]) 
    {
@@ -1609,7 +1610,7 @@ int MPI_Neighbor_allgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcounts[id] * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(NEIGHBOR_ALLGATHERV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1623,7 +1624,7 @@ int MPI_Iallgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IALLGATHERV_ID]);
+   roctxRangePush(label[IALLGATHERV_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iallgatherv(sbuf, scount, stype, rbuf, rcounts, rdisp, rtype, comm, req);
@@ -1633,7 +1634,7 @@ int MPI_Iallgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcounts[id] * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IALLGATHERV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1647,7 +1648,7 @@ int MPI_Ineighbor_allgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[INEIGHBOR_ALLGATHERV_ID]);
+   roctxRangePush(label[INEIGHBOR_ALLGATHERV_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ineighbor_allgatherv(sbuf, scount, stype, rbuf, rcounts, rdisp, rtype, comm, req);
@@ -1657,7 +1658,7 @@ int MPI_Ineighbor_allgatherv(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    bytes = rcounts[id] * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(INEIGHBOR_ALLGATHERV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1672,7 +1673,7 @@ int MPI_Scatter(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SCATTER_ID]);
+   roctxRangePush(label[SCATTER_ID]);
 
    if (barrier_flag[SCATTER_ID]) 
    {
@@ -1689,7 +1690,7 @@ int MPI_Scatter(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(stype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SCATTER_ID, TV1, TV2, root, -1, bytes, comm); 
    return rc;
 }
@@ -1704,7 +1705,7 @@ int MPI_Iscatter(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ISCATTER_ID]);
+   roctxRangePush(label[ISCATTER_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iscatter(sbuf, scount, stype, rbuf, rcount, rtype, root, comm, req);
@@ -1713,7 +1714,7 @@ int MPI_Iscatter(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(stype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ISCATTER_ID, TV1, TV2, root, -1, bytes, comm); 
    return rc;
 }
@@ -1728,7 +1729,7 @@ int MPI_Scatterv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype sty
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[SCATTERV_ID]);
+   roctxRangePush(label[SCATTERV_ID]);
 
    if (barrier_flag[SCATTERV_ID]) 
    {
@@ -1745,7 +1746,7 @@ int MPI_Scatterv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype sty
    PMPI_Type_size(stype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(SCATTERV_ID, TV1, TV2, root, -1, bytes, comm); 
    return rc;
 }
@@ -1760,7 +1761,7 @@ int MPI_Iscatterv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype st
 {
    int rc, bytes, id;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ISCATTERV_ID]);
+   roctxRangePush(label[ISCATTERV_ID]);
 
    WTIME(TV1);
    rc = PMPI_Iscatterv(sbuf, scounts, sdisp, stype, rbuf, rcount, rtype, root, comm, req);
@@ -1769,7 +1770,7 @@ int MPI_Iscatterv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype st
    PMPI_Type_size(stype, &bytes);
    bytes = rcount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ISCATTERV_ID, TV1, TV2, root, -1, bytes, comm); 
    return rc;
 }
@@ -1784,7 +1785,7 @@ int MPI_Alltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ALLTOALL_ID]);
+   roctxRangePush(label[ALLTOALL_ID]);
 
    if (barrier_flag[ALLTOALL_ID]) 
    {
@@ -1801,7 +1802,7 @@ int MPI_Alltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(stype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ALLTOALL_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1816,7 +1817,7 @@ int MPI_Neighbor_alltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[NEIGHBOR_ALLTOALL_ID]);
+   roctxRangePush(label[NEIGHBOR_ALLTOALL_ID]);
 
    if (barrier_flag[NEIGHBOR_ALLTOALL_ID]) 
    {
@@ -1833,7 +1834,7 @@ int MPI_Neighbor_alltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(stype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(NEIGHBOR_ALLTOALL_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1847,7 +1848,7 @@ int MPI_Ialltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IALLTOALL_ID]);
+   roctxRangePush(label[IALLTOALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ialltoall(sbuf, scount, stype, rbuf, rcount, rtype, comm, req);
@@ -1856,7 +1857,7 @@ int MPI_Ialltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(stype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IALLTOALL_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1870,7 +1871,7 @@ int MPI_Ineighbor_alltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[INEIGHBOR_ALLTOALL_ID]);
+   roctxRangePush(label[INEIGHBOR_ALLTOALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ineighbor_alltoall(sbuf, scount, stype, rbuf, rcount, rtype, comm, req);
@@ -1879,7 +1880,7 @@ int MPI_Ineighbor_alltoall(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(stype, &bytes);
    bytes = scount * bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(INEIGHBOR_ALLTOALL_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1894,7 +1895,7 @@ int MPI_Alltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype st
 {
    int rc, i, count, bytes, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ALLTOALLV_ID]);
+   roctxRangePush(label[ALLTOALLV_ID]);
 
    if (barrier_flag[ALLTOALLV_ID]) 
    {
@@ -1916,7 +1917,7 @@ int MPI_Alltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype st
    for (i=0; i<tasks; i++) count += scounts[i];
    bytes = (count * bytes) / tasks;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ALLTOALLV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1931,7 +1932,7 @@ int MPI_Neighbor_alltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Da
 {
    int rc, i, count, bytes, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[NEIGHBOR_ALLTOALLV_ID]);
+   roctxRangePush(label[NEIGHBOR_ALLTOALLV_ID]);
 
    if (barrier_flag[NEIGHBOR_ALLTOALLV_ID]) 
    {
@@ -1952,7 +1953,7 @@ int MPI_Neighbor_alltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Da
    for (i=0; i<tasks; i++) count += scounts[i];
    bytes = (count * bytes) / tasks;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(NEIGHBOR_ALLTOALLV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1966,7 +1967,7 @@ int MPI_Ialltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype s
 {
    int rc, i, count, bytes, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IALLTOALLV_ID]);
+   roctxRangePush(label[IALLTOALLV_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ialltoallv(sbuf, scounts, sdisp, stype, rbuf, rcounts, rdisp, rtype, comm, req);
@@ -1979,7 +1980,7 @@ int MPI_Ialltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_Datatype s
    for (i=0; i<tasks; i++) count += scounts[i];
    bytes = (count * bytes) / tasks;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IALLTOALLV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -1993,7 +1994,7 @@ int MPI_Ineighbor_alltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_D
 {
    int rc, i, count, bytes, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[INEIGHBOR_ALLTOALLV_ID]);
+   roctxRangePush(label[INEIGHBOR_ALLTOALLV_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ineighbor_alltoallv(sbuf, scounts, sdisp, stype, rbuf, rcounts, rdisp, rtype, comm, req);
@@ -2006,7 +2007,7 @@ int MPI_Ineighbor_alltoallv(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, MPI_D
    for (i=0; i<tasks; i++) count += scounts[i];
    bytes = (count * bytes) / tasks;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(INEIGHBOR_ALLTOALLV_ID, TV1, TV2, -1, -1, bytes, comm); 
    return rc;
 }
@@ -2021,7 +2022,7 @@ int MPI_Alltoallw(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, datarray_t styp
 {
    int rc, i, count, bytes, sz, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ALLTOALLW_ID]);
+   roctxRangePush(label[ALLTOALLW_ID]);
 
    if (barrier_flag[ALLTOALLW_ID]) 
    {
@@ -2047,7 +2048,7 @@ int MPI_Alltoallw(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, datarray_t styp
 
    bytes = (int) ( ((double) bytes) / ((double) tasks) );
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ALLTOALLW_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2062,7 +2063,7 @@ int MPI_Neighbor_alltoallw(sbuf_t sbuf, iarray_t scounts, const MPI_Aint * sdisp
 {
    int rc, i, count, bytes, sz, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[NEIGHBOR_ALLTOALLW_ID]);
+   roctxRangePush(label[NEIGHBOR_ALLTOALLW_ID]);
 
    if (barrier_flag[NEIGHBOR_ALLTOALLW_ID]) 
    {
@@ -2087,7 +2088,7 @@ int MPI_Neighbor_alltoallw(sbuf_t sbuf, iarray_t scounts, const MPI_Aint * sdisp
 
    bytes = (int) ( ((double) bytes) / ((double) tasks) );
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(NEIGHBOR_ALLTOALLW_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2101,7 +2102,7 @@ int MPI_Ialltoallw(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, datarray_t sty
 {
    int rc, i, count, bytes, sz, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[IALLTOALLW_ID]);
+   roctxRangePush(label[IALLTOALLW_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ialltoallw(sbuf, scounts, sdisp, stype, rbuf, rcounts, rdisp, rtype, comm, req);
@@ -2118,7 +2119,7 @@ int MPI_Ialltoallw(sbuf_t sbuf, iarray_t scounts, iarray_t sdisp, datarray_t sty
 
    bytes = (int) ( ((double) bytes) / ((double) tasks) );
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(IALLTOALLW_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2132,7 +2133,7 @@ int MPI_Ineighbor_alltoallw(sbuf_t sbuf, iarray_t scounts, const MPI_Aint * sdis
 {
    int rc, i, count, bytes, sz, tasks;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[INEIGHBOR_ALLTOALLW_ID]);
+   roctxRangePush(label[INEIGHBOR_ALLTOALLW_ID]);
 
    WTIME(TV1);
    rc = PMPI_Ineighbor_alltoallw(sbuf, scounts, sdisp, stype, rbuf, rcounts, rdisp, rtype, comm, req);
@@ -2149,7 +2150,7 @@ int MPI_Ineighbor_alltoallw(sbuf_t sbuf, iarray_t scounts, const MPI_Aint * sdis
 
    bytes = (int) ( ((double) bytes) / ((double) tasks) );
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(INEIGHBOR_ALLTOALLW_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2165,7 +2166,7 @@ int MPI_Accumulate(const void * origin_addr, int origin_count, MPI_Datatype orig
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[ACCUMULATE_ID]);
+   roctxRangePush(label[ACCUMULATE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Accumulate(origin_addr, origin_count, origin_datatype, target_rank,
@@ -2175,7 +2176,7 @@ int MPI_Accumulate(const void * origin_addr, int origin_count, MPI_Datatype orig
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(ACCUMULATE_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2188,13 +2189,13 @@ int MPI_Fetch_and_op(const void * origin_addr, void * result_addr, MPI_Datatype 
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FETCH_AND_OP_ID]);
+   roctxRangePush(label[FETCH_AND_OP_ID]);
 
    WTIME(TV1);
    rc = PMPI_Fetch_and_op(origin_addr, result_addr, datatype, target_rank, target_disp, op, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(FETCH_AND_OP_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2208,7 +2209,7 @@ int MPI_Get(void * origin_addr, int origin_count, MPI_Datatype origin_datatype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[GET_ID]);
+   roctxRangePush(label[GET_ID]);
  
    WTIME(TV1);
    rc = PMPI_Get(origin_addr, origin_count, origin_datatype, target_rank,
@@ -2218,7 +2219,7 @@ int MPI_Get(void * origin_addr, int origin_count, MPI_Datatype origin_datatype,
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(GET_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2233,7 +2234,7 @@ int MPI_Get_accumulate(const void *origin_addr, int origin_count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[GET_ACCUMULATE_ID]);
+   roctxRangePush(label[GET_ACCUMULATE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Get_accumulate(origin_addr, origin_count, origin_datatype, result_addr, result_count,
@@ -2243,7 +2244,7 @@ int MPI_Get_accumulate(const void *origin_addr, int origin_count,
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(GET_ACCUMULATE_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2257,7 +2258,7 @@ int MPI_Put(const void *origin_addr, int origin_count, MPI_Datatype origin_datat
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[PUT_ID]);
+   roctxRangePush(label[PUT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Put(origin_addr, origin_count, origin_datatype, target_rank, target_disp, 
@@ -2267,7 +2268,7 @@ int MPI_Put(const void *origin_addr, int origin_count, MPI_Datatype origin_datat
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(PUT_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2281,7 +2282,7 @@ int MPI_Raccumulate(const void *origin_addr, int origin_count, MPI_Datatype orig
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RACCUMULATE_ID]);
+   roctxRangePush(label[RACCUMULATE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Raccumulate(origin_addr, origin_count, origin_datatype, target_rank, target_disp,
@@ -2291,7 +2292,7 @@ int MPI_Raccumulate(const void *origin_addr, int origin_count, MPI_Datatype orig
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RACCUMULATE_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2305,7 +2306,7 @@ int MPI_Rget(void *origin_addr, int origin_count, MPI_Datatype origin_datatype,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RGET_ID]);
+   roctxRangePush(label[RGET_ID]);
 
    WTIME(TV1);
    rc = PMPI_Rget(origin_addr, origin_count, origin_datatype, target_rank, target_disp,
@@ -2315,7 +2316,7 @@ int MPI_Rget(void *origin_addr, int origin_count, MPI_Datatype origin_datatype,
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RGET_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2331,7 +2332,7 @@ int MPI_Rget_accumulate(const void *origin_addr, int origin_count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RGET_ACCUMULATE_ID]);
+   roctxRangePush(label[RGET_ACCUMULATE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Rget_accumulate(origin_addr, origin_count, origin_datatype, result_addr,
@@ -2342,7 +2343,7 @@ int MPI_Rget_accumulate(const void *origin_addr, int origin_count,
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RGET_ACCUMULATE_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2356,7 +2357,7 @@ int MPI_Rput(const void *origin_addr, int origin_count, MPI_Datatype origin_data
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[RPUT_ID]);
+   roctxRangePush(label[RPUT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Rput(origin_addr, origin_count, origin_datatype, target_rank, target_disp,
@@ -2366,7 +2367,7 @@ int MPI_Rput(const void *origin_addr, int origin_count, MPI_Datatype origin_data
    PMPI_Type_size(origin_datatype, &bytes);
    bytes = origin_count*bytes;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(RPUT_ID, TV1, TV2, -1, target_rank, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2379,7 +2380,7 @@ int MPI_Win_allocate(MPI_Aint size, int disp_unit, MPI_Info info,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_ALLOCATE_ID]);
+   roctxRangePush(label[WIN_ALLOCATE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_allocate(size, disp_unit, info, comm, baseptr, win);
@@ -2387,7 +2388,7 @@ int MPI_Win_allocate(MPI_Aint size, int disp_unit, MPI_Info info,
 
    bytes = size;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_ALLOCATE_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2400,7 +2401,7 @@ int MPI_Win_allocate_shared(MPI_Aint size, int disp_unit, MPI_Info info,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_ALLOCATE_SHARED_ID]);
+   roctxRangePush(label[WIN_ALLOCATE_SHARED_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_allocate_shared(size, disp_unit, info, comm, baseptr, win);
@@ -2408,7 +2409,7 @@ int MPI_Win_allocate_shared(MPI_Aint size, int disp_unit, MPI_Info info,
 
    bytes = size;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_ALLOCATE_SHARED_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2420,7 +2421,7 @@ int MPI_Win_attach(MPI_Win win, void *base, MPI_Aint size)
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_ATTACH_ID]);
+   roctxRangePush(label[WIN_ATTACH_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_attach(win, base, size);
@@ -2428,7 +2429,7 @@ int MPI_Win_attach(MPI_Win win, void *base, MPI_Aint size)
 
    bytes = size;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_ATTACH_ID, TV1, TV2, -1, -1, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2440,13 +2441,13 @@ int MPI_Win_complete(MPI_Win win)
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_COMPLETE_ID]);
+   roctxRangePush(label[WIN_COMPLETE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_complete(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_COMPLETE_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2459,7 +2460,7 @@ int MPI_Win_create(void *base, MPI_Aint size, int disp_unit, MPI_Info info,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_CREATE_ID]);
+   roctxRangePush(label[WIN_CREATE_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_create(base, size, disp_unit, info, comm, win);
@@ -2467,7 +2468,7 @@ int MPI_Win_create(void *base, MPI_Aint size, int disp_unit, MPI_Info info,
  
    bytes = size;
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_CREATE_ID, TV1, TV2, -1, -1, bytes, comm);
    return rc;
 }
@@ -2479,13 +2480,13 @@ int MPI_Win_create_dynamic(MPI_Info info, MPI_Comm comm, MPI_Win *win)
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_CREATE_DYNAMIC_ID]);
+   roctxRangePush(label[WIN_CREATE_DYNAMIC_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_create_dynamic(info, comm, win);
    WTIME(TV2);
  
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_CREATE_DYNAMIC_ID, TV1, TV2, -1, -1, -1, comm);
    return rc;
 }
@@ -2497,13 +2498,13 @@ int MPI_Win_detach(MPI_Win win, const void *base)
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_DETACH_ID]);
+   roctxRangePush(label[WIN_DETACH_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_detach(win, base);
    WTIME(TV2);
  
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_DETACH_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2515,13 +2516,13 @@ int MPI_Win_fence(int assert, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_FENCE_ID]);
+   roctxRangePush(label[WIN_FENCE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_fence(assert, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_FENCE_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2533,13 +2534,13 @@ int MPI_Win_flush(int rank, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_FLUSH_ID]);
+   roctxRangePush(label[WIN_FLUSH_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_flush(rank, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_FLUSH_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2551,13 +2552,13 @@ int MPI_Win_flush_all(MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_FLUSH_ALL_ID]);
+   roctxRangePush(label[WIN_FLUSH_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_flush_all(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_FLUSH_ALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2569,13 +2570,13 @@ int MPI_Win_flush_local(int rank, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_FLUSH_LOCAL_ID]);
+   roctxRangePush(label[WIN_FLUSH_LOCAL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_flush_local(rank, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_FLUSH_LOCAL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2587,13 +2588,13 @@ int MPI_Win_flush_local_all(MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_FLUSH_LOCAL_ALL_ID]);
+   roctxRangePush(label[WIN_FLUSH_LOCAL_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_flush_local_all(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_FLUSH_LOCAL_ALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2605,13 +2606,13 @@ int MPI_Win_free(MPI_Win *win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_FREE_ID]);
+   roctxRangePush(label[WIN_FREE_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_free(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_FREE_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2623,13 +2624,13 @@ int MPI_Win_lock(int lock_type, int rank, int assert, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_LOCK_ID]);
+   roctxRangePush(label[WIN_LOCK_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_lock(lock_type, rank, assert, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_LOCK_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2641,13 +2642,13 @@ int MPI_Win_lock_all(int assert, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_LOCK_ALL_ID]);
+   roctxRangePush(label[WIN_LOCK_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_lock_all(assert, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_LOCK_ALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2659,13 +2660,13 @@ int MPI_Win_post(MPI_Group group, int assert, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_POST_ID]);
+   roctxRangePush(label[WIN_POST_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_post(group, assert, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_POST_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2677,13 +2678,13 @@ int MPI_Win_start(MPI_Group group, int assert, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_START_ID]);
+   roctxRangePush(label[WIN_START_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_start(group, assert, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_START_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2695,13 +2696,13 @@ int MPI_Win_sync(MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_SYNC_ID]);
+   roctxRangePush(label[WIN_SYNC_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_sync(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_SYNC_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2713,13 +2714,13 @@ int MPI_Win_test(MPI_Win win, int *flag)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_TEST_ID]);
+   roctxRangePush(label[WIN_TEST_ID]);
  
    WTIME(TV1);
    rc = PMPI_Win_test(win, flag);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_TEST_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2731,13 +2732,13 @@ int MPI_Win_unlock(int rank, MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_UNLOCK_ID]);
+   roctxRangePush(label[WIN_UNLOCK_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_unlock(rank, win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_UNLOCK_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2749,13 +2750,13 @@ int MPI_Win_unlock_all(MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_UNLOCK_ALL_ID]);
+   roctxRangePush(label[WIN_UNLOCK_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_unlock_all(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_UNLOCK_ALL_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2767,13 +2768,13 @@ int MPI_Win_wait(MPI_Win win)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[WIN_WAIT_ID]);
+   roctxRangePush(label[WIN_WAIT_ID]);
 
    WTIME(TV1);
    rc = PMPI_Win_wait(win);
    WTIME(TV2);
 
-   roctxRangeStop(range);
+   roctxRangePop();
    LogEvent(WIN_WAIT_ID, TV1, TV2, -1, -1, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2786,12 +2787,13 @@ int MPI_File_close(MPI_File * fh)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_CLOSE_ID]);
+   roctxRangePush(label[FILE_CLOSE_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_close(fh);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_CLOSE_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2803,12 +2805,13 @@ int MPI_File_delete(name_t filename, MPI_Info info)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_DELETE_ID]);
+   roctxRangePush(label[FILE_DELETE_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_delete(filename, info);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_DELETE_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2821,7 +2824,7 @@ int MPI_File_iread(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_IREAD_ID]);
+   roctxRangePush(label[FILE_IREAD_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_iread(fh, buf, count, type, req);
@@ -2830,6 +2833,7 @@ int MPI_File_iread(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_IREAD_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2843,7 +2847,7 @@ int MPI_File_iread_at(MPI_File fh, MPI_Offset offset, void * buf, int count,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_IREAD_AT_ID]);
+   roctxRangePush(label[FILE_IREAD_AT_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_iread_at(fh, offset, buf, count, type, req);
@@ -2854,6 +2858,7 @@ int MPI_File_iread_at(MPI_File fh, MPI_Offset offset, void * buf, int count,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_IREAD_AT_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2866,7 +2871,7 @@ int MPI_File_iread_shared(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_IREAD_SHARED_ID]);
+   roctxRangePush(label[FILE_IREAD_SHARED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_iread_shared(fh, buf, count, type, req);
@@ -2875,6 +2880,7 @@ int MPI_File_iread_shared(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_IREAD_SHARED_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2887,7 +2893,7 @@ int MPI_File_iwrite(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_IWRITE_ID]);
+   roctxRangePush(label[FILE_IWRITE_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_iwrite(fh, buf, count, type, req);
@@ -2896,6 +2902,7 @@ int MPI_File_iwrite(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_IWRITE_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2909,7 +2916,7 @@ int MPI_File_iwrite_at(MPI_File fh, MPI_Offset offset, sbuf_t buf, int count,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_IWRITE_AT_ID]);
+   roctxRangePush(label[FILE_IWRITE_AT_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_iwrite_at(fh, offset, buf, count, type, req);
@@ -2920,6 +2927,7 @@ int MPI_File_iwrite_at(MPI_File fh, MPI_Offset offset, sbuf_t buf, int count,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_IWRITE_AT_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2932,7 +2940,7 @@ int MPI_File_iwrite_shared(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_IWRITE_SHARED_ID]);
+   roctxRangePush(label[FILE_IWRITE_SHARED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_iwrite_shared(fh, buf, count, type, req);
@@ -2941,6 +2949,7 @@ int MPI_File_iwrite_shared(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_IWRITE_SHARED_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -2953,12 +2962,13 @@ int MPI_File_open(MPI_Comm comm, name_t filename, int mode,
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_OPEN_ID]);
+   roctxRangePush(label[FILE_OPEN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_open(comm, filename, mode, info, fh);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_OPEN_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2970,12 +2980,13 @@ int MPI_File_preallocate(MPI_File fh, MPI_Offset size_bytes)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_PREALLOCATE_ID]);
+   roctxRangePush(label[FILE_PREALLOCATE_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_preallocate(fh, size_bytes);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_PREALLOCATE_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -2988,7 +2999,7 @@ int MPI_File_read(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ID]);
+   roctxRangePush(label[FILE_READ_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read(fh, buf, count, type, status);
@@ -2997,6 +3008,7 @@ int MPI_File_read(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3009,7 +3021,7 @@ int MPI_File_read_all(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ALL_ID]);
+   roctxRangePush(label[FILE_READ_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_all(fh, buf, count, type, status);
@@ -3018,6 +3030,7 @@ int MPI_File_read_all(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ALL_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3030,7 +3043,7 @@ int MPI_File_read_all_begin(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ALL_BEGIN_ID]);
+   roctxRangePush(label[FILE_READ_ALL_BEGIN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_all_begin(fh, buf, count, type);
@@ -3039,6 +3052,7 @@ int MPI_File_read_all_begin(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ALL_BEGIN_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3050,12 +3064,13 @@ int MPI_File_read_all_end(MPI_File fh, void * buf, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ALL_END_ID]);
+   roctxRangePush(label[FILE_READ_ALL_END_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_all_end(fh, buf, status);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ALL_END_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3069,7 +3084,7 @@ int MPI_File_read_at(MPI_File fh, MPI_Offset offset, void * buf, int count,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_AT_ID]);
+   roctxRangePush(label[FILE_READ_AT_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_at(fh, offset, buf, count, type, status);
@@ -3080,6 +3095,7 @@ int MPI_File_read_at(MPI_File fh, MPI_Offset offset, void * buf, int count,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_AT_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3093,7 +3109,7 @@ int MPI_File_read_at_all(MPI_File fh, MPI_Offset offset, void * buf, int count,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_AT_ALL_ID]);
+   roctxRangePush(label[FILE_READ_AT_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_at_all(fh, offset, buf, count, type, status);
@@ -3104,6 +3120,7 @@ int MPI_File_read_at_all(MPI_File fh, MPI_Offset offset, void * buf, int count,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_AT_ALL_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3117,7 +3134,7 @@ int MPI_File_read_at_all_begin(MPI_File fh, MPI_Offset offset, void * buf,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_AT_ALL_BEGIN_ID]);
+   roctxRangePush(label[FILE_READ_AT_ALL_BEGIN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_at_all_begin(fh, offset, buf, count, type);
@@ -3128,6 +3145,7 @@ int MPI_File_read_at_all_begin(MPI_File fh, MPI_Offset offset, void * buf,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_AT_ALL_BEGIN_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3139,12 +3157,13 @@ int MPI_File_read_at_all_end(MPI_File fh, void * buf, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_AT_ALL_END_ID]);
+   roctxRangePush(label[FILE_READ_AT_ALL_END_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_at_all_end(fh, buf, status);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_AT_ALL_END_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3157,7 +3176,7 @@ int MPI_File_read_ordered(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ORDERED_ID]);
+   roctxRangePush(label[FILE_READ_ORDERED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_ordered(fh, buf, count, type, status);
@@ -3166,6 +3185,7 @@ int MPI_File_read_ordered(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ORDERED_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3178,7 +3198,7 @@ int MPI_File_read_ordered_begin(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ORDERED_BEGIN_ID]);
+   roctxRangePush(label[FILE_READ_ORDERED_BEGIN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_ordered_begin(fh, buf, count, type);
@@ -3187,6 +3207,7 @@ int MPI_File_read_ordered_begin(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ORDERED_BEGIN_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3198,12 +3219,13 @@ int MPI_File_read_ordered_end(MPI_File fh, void * buf, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_ORDERED_END_ID]);
+   roctxRangePush(label[FILE_READ_ORDERED_END_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_ordered_end(fh, buf, status);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_ORDERED_END_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3216,7 +3238,7 @@ int MPI_File_read_shared(MPI_File fh, void * buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_READ_SHARED_ID]);
+   roctxRangePush(label[FILE_READ_SHARED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_read_shared(fh, buf, count, type, status);
@@ -3225,6 +3247,7 @@ int MPI_File_read_shared(MPI_File fh, void * buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_READ_SHARED_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3237,7 +3260,7 @@ int MPI_File_seek(MPI_File fh, MPI_Offset offset, int whence)
    int rc;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_SEEK_ID]);
+   roctxRangePush(label[FILE_SEEK_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_seek(fh, offset, whence);
@@ -3245,6 +3268,7 @@ int MPI_File_seek(MPI_File fh, MPI_Offset offset, int whence)
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_SEEK_ID, TV1, TV2, loff, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3257,7 +3281,7 @@ int MPI_File_seek_shared(MPI_File fh, MPI_Offset offset, int whence)
    int rc;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_SEEK_SHARED_ID]);
+   roctxRangePush(label[FILE_SEEK_SHARED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_seek_shared(fh, offset, whence);
@@ -3265,6 +3289,7 @@ int MPI_File_seek_shared(MPI_File fh, MPI_Offset offset, int whence)
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_SEEK_SHARED_ID, TV1, TV2, loff, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3278,7 +3303,7 @@ int MPI_File_set_view(MPI_File fh, MPI_Offset offset, MPI_Datatype etype,
    int rc;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_SET_VIEW_ID]);
+   roctxRangePush(label[FILE_SET_VIEW_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_set_view(fh, offset, etype, filetype, datarep, info);
@@ -3286,6 +3311,7 @@ int MPI_File_set_view(MPI_File fh, MPI_Offset offset, MPI_Datatype etype,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_SET_VIEW_ID, TV1, TV2, loff, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3297,12 +3323,13 @@ int MPI_File_sync(MPI_File fh)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_SYNC_ID]);
+   roctxRangePush(label[FILE_SYNC_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_sync(fh);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_SYNC_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3315,7 +3342,7 @@ int MPI_File_write(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ID]);
+   roctxRangePush(label[FILE_WRITE_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write(fh, buf, count, type, status);
@@ -3324,6 +3351,7 @@ int MPI_File_write(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3336,7 +3364,7 @@ int MPI_File_write_all(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ALL_ID]);
+   roctxRangePush(label[FILE_WRITE_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_all(fh, buf, count, type, status);
@@ -3345,6 +3373,7 @@ int MPI_File_write_all(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ALL_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3357,7 +3386,7 @@ int MPI_File_write_all_begin(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ALL_BEGIN_ID]);
+   roctxRangePush(label[FILE_WRITE_ALL_BEGIN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_all_begin(fh, buf, count, type);
@@ -3366,6 +3395,7 @@ int MPI_File_write_all_begin(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ALL_BEGIN_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3377,12 +3407,13 @@ int MPI_File_write_all_end(MPI_File fh, sbuf_t buf, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ALL_END_ID]);
+   roctxRangePush(label[FILE_WRITE_ALL_END_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_all_end(fh, buf, status);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ALL_END_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3396,7 +3427,7 @@ int MPI_File_write_at(MPI_File fh, MPI_Offset offset, sbuf_t buf, int count,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_AT_ID]);
+   roctxRangePush(label[FILE_WRITE_AT_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_at(fh, offset, buf, count, type, status);
@@ -3407,6 +3438,7 @@ int MPI_File_write_at(MPI_File fh, MPI_Offset offset, sbuf_t buf, int count,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_AT_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3420,7 +3452,7 @@ int MPI_File_write_at_all(MPI_File fh, MPI_Offset offset, sbuf_t buf, int count,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_AT_ALL_ID]);
+   roctxRangePush(label[FILE_WRITE_AT_ALL_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_at_all(fh, offset, buf, count, type, status);
@@ -3431,6 +3463,7 @@ int MPI_File_write_at_all(MPI_File fh, MPI_Offset offset, sbuf_t buf, int count,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_AT_ALL_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3444,7 +3477,7 @@ int MPI_File_write_at_all_begin(MPI_File fh, MPI_Offset offset, sbuf_t buf,
    int rc, bytes;
    long loff;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_AT_ALL_BEGIN_ID]);
+   roctxRangePush(label[FILE_WRITE_AT_ALL_BEGIN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_at_all_begin(fh, offset, buf, count, type);
@@ -3455,6 +3488,7 @@ int MPI_File_write_at_all_begin(MPI_File fh, MPI_Offset offset, sbuf_t buf,
 
    loff = (long) offset;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_AT_ALL_BEGIN_ID, TV1, TV2, loff, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3466,12 +3500,13 @@ int MPI_File_write_at_all_end(MPI_File fh, sbuf_t buf, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_AT_ALL_END_ID]);
+   roctxRangePush(label[FILE_WRITE_AT_ALL_END_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_at_all_end(fh, buf, status);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_AT_ALL_END_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3484,7 +3519,7 @@ int MPI_File_write_ordered(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ORDERED_ID]);
+   roctxRangePush(label[FILE_WRITE_ORDERED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_ordered(fh, buf, count, type, status);
@@ -3493,6 +3528,7 @@ int MPI_File_write_ordered(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ORDERED_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3505,7 +3541,7 @@ int MPI_File_write_ordered_begin(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ORDERED_BEGIN_ID]);
+   roctxRangePush(label[FILE_WRITE_ORDERED_BEGIN_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_ordered_begin(fh, buf, count, type);
@@ -3514,6 +3550,7 @@ int MPI_File_write_ordered_begin(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ORDERED_BEGIN_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
@@ -3525,12 +3562,13 @@ int MPI_File_write_ordered_end(MPI_File fh, sbuf_t buf, MPI_Status * status)
 {
    int rc;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_ORDERED_END_ID]);
+   roctxRangePush(label[FILE_WRITE_ORDERED_END_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_ordered_end(fh, buf, status);
    WTIME(TV2);
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_ORDERED_END_ID, TV1, TV2, -1L, -1, MPI_COMM_NULL);
    return rc;
 }
@@ -3543,7 +3581,7 @@ int MPI_File_write_shared(MPI_File fh, sbuf_t buf, int count,
 {
    int rc, bytes;
    struct timeval TV1, TV2;
-   roctx_range_id_t range = roctxRangeStartA(label[FILE_WRITE_SHARED_ID]);
+   roctxRangePush(label[FILE_WRITE_SHARED_ID]);
 
    WTIME(TV1);
    rc = PMPI_File_write_shared(fh, buf, count, type, status);
@@ -3552,6 +3590,7 @@ int MPI_File_write_shared(MPI_File fh, sbuf_t buf, int count,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
 
+   roctxRangePop();
    LogIOEvent(FILE_WRITE_SHARED_ID, TV1, TV2, -1L, bytes, MPI_COMM_NULL);
    return rc;
 }
