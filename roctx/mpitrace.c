@@ -1221,13 +1221,14 @@ int MPI_Gather(sbuf_t sbuf, int scount, MPI_Datatype stype,
                void * rbuf, int rcount, MPI_Datatype rtype,
                int root, MPI_Comm comm)
 {
-   int rc, bytes;
+   int rc, bytes, sBytes, rBytes;
    struct timeval TV1, TV2;
 
    char message[256];
    PMPI_Type_size(rtype, &bytes);
-   bytes = scount * bytes;
-   sprintf(message, "%s:root=%d:bytes=%d\0", label[GATHER_ID], root, bytes);
+   sBytes = scount * bytes;
+   rBytes = rcount * bytes;
+   sprintf(message, "%s:src=%d:bytes=%d:dest=%d:bytes=%d\0", label[GATHER_ID], root, sBytes, root, rBytes);
 
    roctxRangePush(message);
 
