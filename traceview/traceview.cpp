@@ -31,7 +31,7 @@
 #include <unistd.h>
 #endif
 
-#define MAX_IDS 146
+#define MAX_IDS 151
 #include "mpitrace_ids.h"
 
 //======================================================================
@@ -1500,6 +1500,9 @@ void set_labels_and_colors(void)
    strcpy(label[FILE_WRITE_ORDERED_BEGIN_ID], "MPI_File_write_ordered_begin");
    strcpy(label[FILE_WRITE_ORDERED_END_ID],   "MPI_File_write_ordered_end");
    strcpy(label[FILE_WRITE_SHARED_ID],        "MPI_File_write_shared");
+
+   strcpy(label[MPI_INIT],                    "MPI_Init");
+   strcpy(label[MPI_FIN],                     "MPI_Finalize");
 
    srand(13579);
 

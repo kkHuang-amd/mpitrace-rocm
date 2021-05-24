@@ -150,3 +150,6 @@
 #define FILE_WRITE_ORDERED_BEGIN_ID  143
 #define FILE_WRITE_ORDERED_END_ID    144
 #define FILE_WRITE_SHARED_ID         145
+
+#define MPI_INIT                     150
+#define MPI_FIN                      151

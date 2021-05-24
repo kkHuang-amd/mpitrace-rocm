@@ -36,7 +36,15 @@ int MPI_Init(int * argc, char *** argv)
 
 #include "init_part1.c"
 
+
+   char message[256];
+   sprintf(message, "%s\0", "MPI_Init");
+
+   roctxRangePush(message);
+
    rcinit = PMPI_Init(argc, argv);
+
+   roctxRangePop();
 
 #include "init_part2.c"
 
@@ -64,8 +72,13 @@ int MPI_Init_thread(int * argc, char *** argv, int required, int * provided)
    MPI_Errhandler err_traceback;
 
 #include "init_part1.c"
+   char message[256];
+   sprintf(message, "%s\0", "MPI_Init_thread");
+   roctxRangePush(message);
 
    rcinit = PMPI_Init_thread(argc, argv, required, provided);
+
+   roctxRangePop();
 
 #include "init_part2.c"
 
@@ -154,7 +167,7 @@ int MPI_Send(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
    if (dest == MPI_PROC_NULL) bytes = 0;
-   sprintf(message, "%s:dest=%d:bytes=%d\0", label[SEND_ID], dest, bytes);
+   sprintf(message, "%s:dest=%d:bytes=%d:comm=%u\0", label[SEND_ID], dest, bytes, comm);
 
    roctxRangePush(message);
 
@@ -257,7 +270,7 @@ int MPI_Isend(sbuf_t sbuf, int count, MPI_Datatype type, int dest,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
    if (dest == MPI_PROC_NULL) bytes = 0;
-   sprintf(message, "%s:dest=%d:bytes=%d\0", label[ISEND_ID], dest, bytes);
+   sprintf(message, "%s:dest=%d:bytes=%d:comm=%u\0", label[ISEND_ID], dest, bytes, comm);
 
    roctxRangePush(message);
 
@@ -480,7 +493,7 @@ int MPI_Recv(void * rbuf, int count, MPI_Datatype type, int src,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
    if (src == MPI_PROC_NULL) bytes = 0;
-   sprintf(message, "%s:src=%d:bytes=%d\0", label[RECV_ID], src, bytes);
+   sprintf(message, "%s:src=%d:bytes=%d:comm=%u\0", label[RECV_ID], src, bytes, comm);
 
    roctxRangePush(message);
    MPI_Status local_status;
@@ -535,7 +548,7 @@ int MPI_Irecv(void * rbuf, int count, MPI_Datatype type, int src,
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
    if (src == MPI_PROC_NULL) bytes = 0;
-   sprintf(message, "%s:src=%d:bytes=%d\0", label[IRECV_ID], src, bytes);
+   sprintf(message, "%s:src=%d:bytes=%d:comm=%u\0", label[IRECV_ID], src, bytes, comm);
 
    roctxRangePush(message);
 
@@ -570,7 +583,7 @@ int MPI_Sendrecv(sbuf_t sbuf, int scount, MPI_Datatype stype, int dest, int stag
    rbytes = rcount * rbytes;
    if (dest == MPI_PROC_NULL) sbytes = 0;
    if (src == MPI_PROC_NULL) rbytes = 0;
-   sprintf(message, "%s:dest=%d:bytes=%d:src=%d:bytes=%d\0", label[SENDRECV_ID], dest, sbytes, src, rbytes);
+   sprintf(message, "%s:dest=%d:bytes=%d:src=%d:bytes=%d:comm=%u\0", label[SENDRECV_ID], dest, sbytes, src, rbytes, comm);
 
    roctxRangePush(message);
 
@@ -1046,7 +1059,7 @@ int MPI_Allreduce(sbuf_t sbuf, void * rbuf, int count, MPI_Datatype type,
    char message[256];
    PMPI_Type_size(type, &bytes);
    bytes = count * bytes;
-   sprintf(message, "%s:bytes=%d\0", label[ALLREDUCE_ID], bytes);
+   sprintf(message, "%s:bytes=%d:comm=%u\0", label[ALLREDUCE_ID], bytes, comm);
 
    roctxRangePush(message);
 
@@ -1228,7 +1241,7 @@ int MPI_Gather(sbuf_t sbuf, int scount, MPI_Datatype stype,
    PMPI_Type_size(rtype, &bytes);
    sBytes = scount * bytes;
    rBytes = rcount * bytes;
-   sprintf(message, "%s:src=%d:bytes=%d:dest=%d:bytes=%d\0", label[GATHER_ID], root, sBytes, root, rBytes);
+   sprintf(message, "%s:src=%d:bytes=%d:dest=%d:bytes=%d:comm=%u\0", label[GATHER_ID], root, sBytes, root, rBytes, comm);
 
    roctxRangePush(message);
 
@@ -3606,7 +3619,13 @@ int MPI_Finalize(void)
 
    write_profile_data();
 
+   char message[256];
+   sprintf(message, "%s\0", "MPI_Finalize");
+
+   roctxRangePush(message);
    rc = PMPI_Finalize();
+
+   roctxRangePop();
    return rc;
 }
 
